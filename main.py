@@ -4,6 +4,7 @@ RED, GREEN, BLUE, PURPLE = (255, 0, 0), (0, 255, 0), (0, 0, 128), (153, 0, 153)
 HEIGHT, WIDTH, SIZE = 600, 600, 15
 start, end = None, None
 impassable = set()
+ready = True
 
 class Node():
     def __init__(self, value, x, y):
@@ -85,11 +86,16 @@ def findPath():
     path = search(grid, grid[x1][y1], grid[x2][y2])   
     print("SHORTEST PATH:", len(path))
 
-def createGrid():
+def initialize():
+    global ready, start, end, impassable
+    start, end, impassable = None, None, set()
+    screen.fill(WHITE)    
     for i in range(0, WIDTH, SIZE):
         for j in range(0, HEIGHT, SIZE):
             rect = pygame.Rect(i, j, SIZE, SIZE)
             pygame.draw.rect(screen, BLACK, rect, 1)
+    pygame.display.flip()        
+    ready = True    
      
 def fillSquare(col, row, color):
     rect = pygame.Rect(col * SIZE, row * SIZE, SIZE, SIZE)
@@ -116,6 +122,7 @@ def onClick():
         impassable.add((col, row))   
         
     fillSquare(col, row, color)
+    
   
             
 if __name__ == "__main__":
@@ -123,11 +130,7 @@ if __name__ == "__main__":
     pygame.init() 
     # Set up the drawing window
     screen = pygame.display.set_mode([HEIGHT, WIDTH])
-
-    screen.fill(WHITE)
-    createGrid()
-    pygame.display.flip()    
-    clickable = 1
+    initialize()
     # Run until the user asks to quit
     running = True
     while running:
@@ -137,19 +140,14 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
         
-            if pygame.mouse.get_pressed()[0] and clickable:
+            if pygame.mouse.get_pressed()[0] and ready:
                 onClick()
                 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and start and end: 
-                    clickable = 0
+                if event.key == pygame.K_RETURN and start and end and ready: 
+                    ready = False
                     findPath()                    
                 elif event.key == pygame.K_ESCAPE:
-                    screen.fill(WHITE)
-                    createGrid()                    
-                    pygame.display.flip()
-                    impassable = set()
-                    start, end = None, None
-                    clickable = 1
+                    initialize()                   
                 
     pygame.quit()
